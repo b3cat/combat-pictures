@@ -1,4 +1,4 @@
-import { ToggleButtonGroup, ToggleButton, Slider, Typography, Divider, Alert } from '@mui/material'
+import { ToggleButtonGroup, ToggleButton, Slider, Typography, Divider, Alert, Button } from '@mui/material'
 import React, { MouseEventHandler, useEffect, useRef, useState } from 'react'
 
 type Props = {
@@ -156,6 +156,8 @@ const BubbleDrawer: React.FC<Props> = ({ imageSrc }) => {
   const [image, setImage] = useState(createImage(imageSrc))
   const [bubbleSizeScale, setBubbleSizeScale] = useState(0.25)
   const [mouthPoint, setMouthPoint] = useState<Point>()
+  const [ready, setReady] = useState(false)
+  
 
   const handleSideChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -177,10 +179,22 @@ const BubbleDrawer: React.FC<Props> = ({ imageSrc }) => {
   }, [imageSrc])
 
   const handleCanvasClick: MouseEventHandler<HTMLCanvasElement> = (e) => {
-    const x = e.nativeEvent.x + window.pageXOffset - e.currentTarget.offsetLeft;
-    var y = e.nativeEvent.y + window.pageYOffset - e.currentTarget.offsetTop;
+    const canvas = e.currentTarget
+
+    const x = (e.nativeEvent.x + window.pageXOffset - canvas.offsetLeft) * (canvas.width / canvas.clientWidth);
+    var y = (e.nativeEvent.y + window.pageYOffset - canvas.offsetTop) * (canvas.width / canvas.clientWidth);
 
     setMouthPoint([x, y])
+  }
+
+  if (ready) {
+    const image = canvasRef.current?.toDataURL()
+
+    return <>
+      {image && <img id='bubble-image' src={image} style={{
+        maxWidth: '100%'
+      }}/>}
+    </>
   }
 
   return <div>
@@ -194,23 +208,23 @@ const BubbleDrawer: React.FC<Props> = ({ imageSrc }) => {
           marginBlock: 2,
         }}
       >
-        <ToggleButton value="left">
+        <ToggleButton value='left'>
           left
         </ToggleButton>
-        <ToggleButton value="top">
+        <ToggleButton value='top'>
           top
         </ToggleButton>
-        <ToggleButton value="right">
+        <ToggleButton value='right'>
           right
         </ToggleButton>
-        <ToggleButton value="bottom">
+        <ToggleButton value='bottom'>
           bottom
         </ToggleButton>
       </ToggleButtonGroup>
     </div>
     <Divider sx={{ marginBottom: 2 }}/>
     <div>
-      <Typography id="input-slider">
+      <Typography id='input-slider'>
         Change bubble size
       </Typography>
       <Slider value={bubbleSizeScale} onChange={(_, v) => { setBubbleSizeScale(v as number)}} step={0.05}  min={0} max={1}>
@@ -219,11 +233,15 @@ const BubbleDrawer: React.FC<Props> = ({ imageSrc }) => {
     <Divider sx={{ marginBottom: 2 }}/>
     <div>
       <Alert severity='info'>
-        To change the position of the "mouth" vertex of the triangle just click in the right place on the picture
+        To change the position of the 'mouth' vertex of the triangle just click in the right place on the picture
       </Alert>
       <Divider sx={{ marginBlock: 2 }}/>
     </div>
-    <canvas onClick={handleCanvasClick} ref={canvasRef}/>
+    <div>
+      <Button variant='contained' color='success' onClick={() => setReady(true)}>Done!</Button>
+      <Divider sx={{ marginBlock: 2 }}/>
+    </div>
+    <canvas onClick={handleCanvasClick} ref={canvasRef} style={{ maxWidth: '100%' }}/>
 
   </div>
 }

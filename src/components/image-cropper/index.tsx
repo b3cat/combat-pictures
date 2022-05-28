@@ -92,7 +92,7 @@ const ImageCropper: React.FC<Props> = ({ src, onCropEnd }) => {
       <Divider sx={{ marginBottom: 2 }}/>
     </div>}
     <ReactCrop crop={crop} onChange={c => setCrop(c)} onComplete={c => setCompletedCrop(c)}>
-      <img ref={imageRef} src={src} />
+      <img id='crop-image' ref={imageRef} src={src} />
     </ReactCrop>
   </>
 }
